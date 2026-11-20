@@ -1,0 +1,209 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Language {
+  UZ
+  RU
+  EN
+}
+
+enum PricingType {
+  PER_PAGE
+  FIXED
+}
+
+enum OrderStatus {
+  PENDING
+  WAITING_PAYMENT
+  PAID
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum OrderSource {
+  WEB
+  TELEGRAM
+}
+
+enum PaymentProviderType {
+  CARD_TRANSFER
+  CLICK
+  PAYME
+  MOCK
+}
+
+enum PaymentStatus {
+  PENDING
+  WAITING_VERIFICATION
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+model User {
+  id                    String         @id @default(cuid())
+  phone                 String?        @unique
+  firstName             String
+  lastName              String         @default("")
+  passwordHash          String?
+  role                  Role           @default(USER)
+  language              Language       @default(UZ)
+  telegramId            BigInt?        @unique
+  telegramUsername      String?
+  telegramChatId        String?
+  telegramLinkCode      String?        @unique
+  telegramLinkExpiresAt DateTime?
+  isActive              Boolean        @default(true)
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  orders        Order[]
+  payments      Payment[]
+  adminActions  AdminAction[]
+  notifications Notification[]
+
+  @@index([role])
+  @@index([telegramChatId])
+}
+
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model Service {
+  id            String      @id @default(cuid())
+  slug          String      @unique
+  nameUz        String
+  nameRu        String
+  nameEn        String
+  descriptionUz String
+  descriptionRu String
+  descriptionEn String
+  price         Int
+  pricingType   PricingType @default(PER_PAGE)
+  isActive      Boolean     @default(true)
+  sortOrder     Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  orders Order[]
+
+  @@index([isActive, sortOrder])
+}
+
+model Order {
+  id                       String      @id @default(cuid())
+  orderNumber              String      @unique
+  sequenceNumber           Int         @unique @default(autoincrement())
+  userId                   String
+  serviceId                String
+  sourceLanguage           Language
+  targetLanguage           Language
+  originalFileName         String
+  originalFileKey          String
+  originalFileMime         String?
+  originalFileSize         Int?
+  originalTelegramFileId   String?
+  pageCount                Int
+  autoDetectedPages        Boolean     @default(false)
+  unitPrice                Int
+  pricingType              PricingType
+  totalPrice               Int
+  status                   OrderStatus @default(WAITING_PAYMENT)
+  source                   OrderSource @default(WEB)
+  customerNote             String?
+  adminNote                String?
+  translatedFileName       String?
+  translatedFileKey        String?
+  translatedTelegramFileId String?
+  completedAt              DateTime?
+  createdAt                DateTime    @default(now())
+  updatedAt                DateTime    @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  service      Service       @relation(fields: [serviceId], references: [id])
+  payments     Payment[]
+  adminActions AdminAction[]
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@index([orderNumber])
+}
+
+model Payment {
+  id                    String              @id @default(cuid())
+  orderId               String
+  userId                String
+  provider              PaymentProviderType
+  status                PaymentStatus       @default(PENDING)
+  amount                Int
+  externalId            String?
+  receiptFileName       String?
+  receiptFileKey        String?
+  receiptTelegramFileId String?
+  providerPayload       Json?
+  verifiedById          String?
+  paidAt                DateTime?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([provider, externalId])
+}
+
+model AdminAction {
+  id         String   @id @default(cuid())
+  adminId    String
+  orderId    String?
+  targetType String
+  targetId   String?
+  action     String
+  details    Json?
+  createdAt  DateTime @default(now())
+
+  admin User   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([targetType, targetId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("INFO")
+  isRead    Boolean  @default(false)
+  orderId   String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead, createdAt])
+}
