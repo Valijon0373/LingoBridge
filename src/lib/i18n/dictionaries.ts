@@ -89,8 +89,15 @@ export interface Dictionary {
   auth: {
     loginTitle: string;
     loginSubtitle: string;
+    loginHint: string;
     registerTitle: string;
     registerSubtitle: string;
+    registerHint: string;
+    overlayLoginTitle: string;
+    overlayLoginSubtitle: string;
+    overlayRegisterTitle: string;
+    overlayRegisterSubtitle: string;
+    passwordHint: string;
     phone: string;
     firstName: string;
     lastName: string;
@@ -320,8 +327,15 @@ export const dictionaries: Record<Locale, Dictionary> = {
     auth: {
       loginTitle: "Tizimga kirish",
       loginSubtitle: "Buyurtmalaringizni kuzatish va yangi buyurtma berish uchun kiring",
+      loginHint: "Telefon raqamingiz va parolingizdan foydalaning",
       registerTitle: "Ro‘yxatdan o‘tish",
       registerSubtitle: "Lingo Bridge platformasida shaxsiy kabinet yarating",
+      registerHint: "Ro‘yxatdan o‘tish uchun ma’lumotlaringizni kiriting",
+      overlayLoginTitle: "Xush kelibsiz!",
+      overlayLoginSubtitle: "Allaqachon hisobingiz bormi? Buyurtmalaringizni kuzatish uchun tizimga kiring",
+      overlayRegisterTitle: "Salom, do‘st!",
+      overlayRegisterSubtitle: "Shaxsiy ma’lumotlaringiz bilan ro‘yxatdan o‘ting va barcha imkoniyatlardan foydalaning",
+      passwordHint: "Parol (kamida 6 ta belgi)",
       phone: "Telefon raqam",
       firstName: "Ism",
       lastName: "Familiya",
@@ -550,8 +564,15 @@ export const dictionaries: Record<Locale, Dictionary> = {
     auth: {
       loginTitle: "Вход в систему",
       loginSubtitle: "Войдите, чтобы отслеживать заказы и оформлять новые переводы",
+      loginHint: "Используйте номер телефона и пароль",
       registerTitle: "Регистрация",
       registerSubtitle: "Создайте личный кабинет на платформе Lingo Bridge",
+      registerHint: "Введите данные для создания аккаунта",
+      overlayLoginTitle: "С возвращением!",
+      overlayLoginSubtitle: "Уже есть аккаунт? Войдите, чтобы отслеживать свои заказы и переводы",
+      overlayRegisterTitle: "Привет, друг!",
+      overlayRegisterSubtitle: "Зарегистрируйтесь, чтобы пользоваться всеми возможностями платформы",
+      passwordHint: "Пароль (минимум 6 символов)",
       phone: "Номер телефона",
       firstName: "Имя",
       lastName: "Фамилия",
@@ -780,15 +801,22 @@ export const dictionaries: Record<Locale, Dictionary> = {
     auth: {
       loginTitle: "Sign In",
       loginSubtitle: "Access your orders, invoices, and completed translations",
+      loginHint: "Use your phone number and password",
       registerTitle: "Create Account",
       registerSubtitle: "Register on Lingo Bridge in seconds",
+      registerHint: "Enter your personal details to register",
+      overlayLoginTitle: "Welcome Back!",
+      overlayLoginSubtitle: "Enter your personal details to use all of Lingo Bridge features",
+      overlayRegisterTitle: "Hello, Friend!",
+      overlayRegisterSubtitle: "Register with your personal details to use all of site features",
+      passwordHint: "Password (at least 6 characters)",
       phone: "Phone Number",
       firstName: "First Name",
       lastName: "Last Name",
       password: "Password",
       language: "Interface Language",
       loginButton: "Sign In",
-      registerButton: "Create Account",
+      registerButton: "Sign Up",
       noAccount: "Don’t have an account?",
       haveAccount: "Already have an account?",
     },

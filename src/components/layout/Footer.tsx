@@ -98,9 +98,8 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-slate-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div className="mt-10 border-t border-slate-100 pt-6 flex items-center justify-center text-xs text-slate-500">
           <p>© {new Date().getFullYear()} Lingo Bridge. All rights reserved.</p>
-          <p>UZ • RU • EN — Academic & Official Translation Platform</p>
         </div>
       </div>
     </footer>
