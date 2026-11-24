@@ -8,7 +8,6 @@ import {
   RiArrowRightLine as ArrowRight,
   RiCheckLine as Check,
   RiCheckboxCircleLine as CheckCircle2,
-  RiFileCopyLine as Copy,
   RiBankCardLine as CreditCard,
   RiFileTextLine as FileText,
   RiTranslate2 as Languages,
@@ -33,6 +32,7 @@ import {
 } from "@/lib/utils";
 import type { OrderDTO, PaymentMethodsDTO, ServiceDTO } from "@/types";
 import { Card } from "@/components/ui/Card";
+import { PaymentCardVisual } from "@/components/ui/PaymentCardVisual";
 import { Button } from "@/components/ui/Button";
 
 export function OrderWizard({
@@ -76,7 +76,6 @@ export function OrderWizard({
   // Step 4 & 5: Created Order + Payment
   const [createdOrder, setCreatedOrder] = useState<OrderDTO | null>(null);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  const [copiedCard, setCopiedCard] = useState(false);
   const [paymentCompletedMessage, setPaymentCompletedMessage] = useState<string | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
@@ -714,39 +713,16 @@ export function OrderWizard({
                     {t.orderWizard.cardMethodDesc}
                   </p>
 
-                  <div className="mt-4 rounded-xl bg-white border border-slate-200 p-4 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-[11px] text-slate-500">
-                          {t.orderWizard.cardNumber} ({paymentMethods.cardTransfer.bankName})
-                        </p>
-                        <p className="font-mono text-base font-bold text-slate-900 tracking-wide">
-                          {paymentMethods.cardTransfer.cardNumber}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            paymentMethods.cardTransfer.cardNumber.replace(/\s/g, "")
-                          );
-                          setCopiedCard(true);
-                          setTimeout(() => setCopiedCard(false), 2000);
-                        }}
-                        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 cursor-pointer"
-                      >
-                        <Copy className="h-3.5 w-3.5" />
-                        {copiedCard ? t.common.copied : t.common.copy}
-                      </button>
-                    </div>
-                    <div>
-                      <p className="text-[11px] text-slate-500">
-                        {t.orderWizard.cardHolder}
-                      </p>
-                      <p className="text-sm font-semibold text-slate-800">
-                        {paymentMethods.cardTransfer.cardHolder}
-                      </p>
-                    </div>
+                  <div className="mt-4">
+                    <PaymentCardVisual
+                      cardNumber={paymentMethods.cardTransfer.cardNumber}
+                      cardHolder={paymentMethods.cardTransfer.cardHolder}
+                      bankName={paymentMethods.cardTransfer.bankName}
+                      cardHolderLabel={t.orderWizard.cardHolder}
+                      copyLabel={t.common.copy}
+                      copiedLabel={t.common.copied}
+                      brandName={t.common.brand}
+                    />
                   </div>
 
                   <form onSubmit={handleReceiptSubmit} className="mt-4 space-y-3">
