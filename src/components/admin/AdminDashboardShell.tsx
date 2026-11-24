@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   RiDashboard3Line,
@@ -18,9 +19,9 @@ import {
   RiGlobalLine,
   RiCloseLine,
   RiLoader4Line,
-  RiBookOpenLine,
   RiSettings3Line,
 } from "react-icons/ri";
+import logoImg from "@/assets/logo.jpg";
 import { useI18n } from "@/lib/i18n/context";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
@@ -164,28 +165,42 @@ export function AdminDashboardShell({
             : "-translate-x-full lg:translate-x-0"
         )}
       >
-        {/* Brand Box with Icon */}
+        {/* Brand Box with Logo */}
         <div
           className={cn(
-            "flex h-16 items-center justify-between px-4 border-b",
+            "flex h-[76px] items-center justify-between px-4 border-b",
             darkMode ? "border-slate-800" : "border-slate-100"
           )}
         >
           {!sidebarCollapsed ? (
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#00C896] text-white shadow-xs">
-                <RiBookOpenLine className="h-5 w-5" />
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-white shadow-xs ring-1 ring-slate-200/80">
+                <Image
+                  src={logoImg}
+                  alt="Lingo Bridge"
+                  fill
+                  sizes="56px"
+                  priority
+                  className="object-cover"
+                />
               </div>
               <div className="leading-tight truncate">
-                <p className="text-sm font-bold tracking-tight truncate">
+                <p className="text-base font-bold tracking-tight truncate">
                   Lingo Bridge
                 </p>
                 <p className="text-[11px] text-slate-400">Admin Panel</p>
               </div>
             </div>
           ) : (
-            <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-[#00C896] text-white shadow-xs">
-              <RiBookOpenLine className="h-5 w-5" />
+            <div className="relative mx-auto h-14 w-14 shrink-0 overflow-hidden rounded-full bg-white shadow-xs ring-1 ring-slate-200/80">
+              <Image
+                src={logoImg}
+                alt="Lingo Bridge"
+                fill
+                sizes="56px"
+                priority
+                className="object-cover"
+              />
             </div>
           )}
           <button
@@ -257,7 +272,7 @@ export function AdminDashboardShell({
         {/* Top Header Bar */}
         <header
           className={cn(
-            "sticky top-0 z-30 flex h-16 items-center justify-between border-b px-4 sm:px-6",
+            "sticky top-0 z-30 flex h-[76px] items-center justify-between border-b px-4 sm:px-6",
             darkMode
               ? "bg-slate-900 border-slate-800"
               : "bg-white border-slate-200/80"
