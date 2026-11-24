@@ -319,6 +319,10 @@ export const dictionaries: Record<Locale, Dictionary> = {
           a: "Buyurtma tugallangach (COMPLETED), tayyor fayl «Mening buyurtmalarim» bo‘limida paydo bo‘ladi va Telegram botingizga ham avtomatik yuboriladi.",
         },
         {
+          q: "Telegram bot orqali tarjimam tayyor bo‘lganini qanday bilaman?",
+          a: "Ro‘yxatdan o‘tganingizdan so‘ng @lingo_bridge_spin_bot botiga kirib /start bosing va telefon raqamingizni ulashing (yoki shaxsiy kabinetdagi «Profil → Telegram bot bilan bog‘lash» tugmasidan foydalaning). Shundan so‘ng botda o‘zingiz va buyurtmalaringiz haqida ma’lumot ko‘rishingiz, tarjimangiz tayyor bo‘lishi bilan esa avtomatik xabar hamda tayyor faylni to‘g‘ridan-to‘g‘ri Telegramda qabul qilishingiz mumkin.",
+        },
+        {
           q: "Hujjatlarim maxfiyligi ta’minlanadimi?",
           a: "Ha, barcha yuklangan ilmiy va rasmiy hujjatlar himoyalangan serverda saqlanadi va faqat siz hamda mas’ul tarjimon/admin ko‘rishi mumkin.",
         },
@@ -333,7 +337,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       registerHint: "Ro‘yxatdan o‘tish uchun ma’lumotlaringizni kiriting",
       overlayLoginTitle: "Xush kelibsiz!",
       overlayLoginSubtitle: "Allaqachon hisobingiz bormi? Buyurtmalaringizni kuzatish uchun tizimga kiring",
-      overlayRegisterTitle: "Salom, do‘st!",
+      overlayRegisterTitle: "Salom, Foydalanuvchi!",
       overlayRegisterSubtitle: "Shaxsiy ma’lumotlaringiz bilan ro‘yxatdan o‘ting va barcha imkoniyatlardan foydalaning",
       passwordHint: "Parol (kamida 6 ta belgi)",
       phone: "Telefon raqam",
@@ -556,6 +560,10 @@ export const dictionaries: Record<Locale, Dictionary> = {
           a: "После завершения работы (COMPLETED) файл появится в разделе «Мои заказы» и автоматически придёт в привязанный Telegram-бот.",
         },
         {
+          q: "Как узнать через Telegram-бот, что мой перевод готов?",
+          a: "После регистрации откройте @lingo_bridge_spin_bot, нажмите /start и поделитесь номером телефона (или привяжите аккаунт через «Профиль → Привязать Telegram-бот» в личном кабинете). После этого вы сможете просматривать свои данные и заказы в боте, а как только перевод будет готов, автоматически получите уведомление и готовый файл прямо в Telegram.",
+        },
+        {
           q: "Гарантируется ли конфиденциальность документов?",
           a: "Да, все файлы хранятся в защищённом хранилище с доступом только для владельца заказа и администратора.",
         },
@@ -570,7 +578,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       registerHint: "Введите данные для создания аккаунта",
       overlayLoginTitle: "С возвращением!",
       overlayLoginSubtitle: "Уже есть аккаунт? Войдите, чтобы отслеживать свои заказы и переводы",
-      overlayRegisterTitle: "Привет, друг!",
+      overlayRegisterTitle: "Привет, пользователь!",
       overlayRegisterSubtitle: "Зарегистрируйтесь, чтобы пользоваться всеми возможностями платформы",
       passwordHint: "Пароль (минимум 6 символов)",
       phone: "Номер телефона",
@@ -793,6 +801,10 @@ export const dictionaries: Record<Locale, Dictionary> = {
           a: "Once marked COMPLETED, your translated file appears in My Orders and is sent automatically to your linked Telegram bot.",
         },
         {
+          q: "How do I get notified via Telegram bot when my translation is ready?",
+          a: "After registering, open @lingo_bridge_spin_bot, press /start, and share your phone number (or connect via «Profile → Connect Telegram Bot» in your dashboard). You can then view your profile and orders in the bot, and as soon as your translation is ready, you will automatically receive a notification along with the finished file directly in Telegram.",
+        },
+        {
           q: "Are my documents kept confidential?",
           a: "Yes. All files are stored securely with strict access control — only you and authorized staff can access them.",
         },
@@ -807,7 +819,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       registerHint: "Enter your personal details to register",
       overlayLoginTitle: "Welcome Back!",
       overlayLoginSubtitle: "Enter your personal details to use all of Lingo Bridge features",
-      overlayRegisterTitle: "Hello, Friend!",
+      overlayRegisterTitle: "Hello, User!",
       overlayRegisterSubtitle: "Register with your personal details to use all of site features",
       passwordHint: "Password (at least 6 characters)",
       phone: "Phone Number",

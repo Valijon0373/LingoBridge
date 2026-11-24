@@ -2,6 +2,7 @@ import type { Language, OrderSource, OrderStatus, PaymentProviderType, PaymentSt
 
 export interface UserDTO {
   id: string;
+  username?: string | null;
   phone: string | null;
   firstName: string;
   lastName: string;

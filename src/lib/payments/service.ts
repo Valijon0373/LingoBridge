@@ -29,11 +29,12 @@ class PaymentServiceImpl {
     return provider;
   }
 
-  getAvailableMethods() {
+  async getAvailableMethods() {
+    const cardDetails = await getCardTransferDetails();
     return {
       cardTransfer: {
         enabled: true,
-        ...getCardTransferDetails(),
+        ...cardDetails,
       },
       click: {
         enabled: this.getProvider("CLICK").isConfigured,

@@ -61,19 +61,39 @@ export function AdminDashboardShell({
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("lb_admin_dark");
-    if (saved === "1") {
-      setDarkMode(true);
+    try {
+      window.localStorage.removeItem("lb_admin_dark");
+    } catch {
+      // Ignore storage errors
     }
+    fetch("/api/preferences", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { adminDarkMode?: boolean } | null) => {
+        if (typeof data?.adminDarkMode === "boolean") {
+          setDarkMode(data.adminDarkMode);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem("lb_admin_dark", darkMode ? "1" : "0");
     document.documentElement.classList.toggle("dark", darkMode);
     return () => {
       document.documentElement.classList.remove("dark");
     };
   }, [darkMode]);
+
+  function toggleDarkMode() {
+    setDarkMode((prev) => {
+      const next = !prev;
+      void fetch("/api/preferences", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adminDarkMode: next }),
+      }).catch(() => {});
+      return next;
+    });
+  }
 
   const [stats, setStats] = useState<AdminStatsData | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -287,7 +307,7 @@ export function AdminDashboardShell({
             {/* Dark/Light Mode Toggle */}
             <button
               type="button"
-              onClick={() => setDarkMode((d) => !d)}
+              onClick={toggleDarkMode}
               className={cn(
                 "flex h-9 w-9 items-center justify-center rounded-full transition-colors cursor-pointer",
                 darkMode

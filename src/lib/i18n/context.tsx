@@ -16,8 +16,6 @@ const I18nContext = createContext<I18nContextValue>({
   t: dictionaries.uz,
 });
 
-const STORAGE_KEY = "lb_locale";
-
 export function I18nProvider({
   children,
   initialLocale = "uz",
@@ -27,18 +25,23 @@ export function I18nProvider({
 }) {
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
 
+  // Clean up any legacy localStorage preference key once on mount
   useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY) as Locale | null;
-    if (saved && (saved === "uz" || saved === "ru" || saved === "en")) {
-      setLocaleState(saved);
+    try {
+      window.localStorage.removeItem("lb_locale");
+    } catch {
+      // Ignore storage errors
     }
   }, []);
 
   const setLocale = (next: Locale) => {
     setLocaleState(next);
-    window.localStorage.setItem(STORAGE_KEY, next);
-    document.cookie = `lb_locale=${next}; path=/; max-age=31536000; samesite=lax`;
     document.documentElement.lang = next;
+    void fetch("/api/preferences", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ locale: next }),
+    }).catch(() => {});
   };
 
   return (

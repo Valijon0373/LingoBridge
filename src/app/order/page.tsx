@@ -6,8 +6,10 @@ import { OrderWizard } from "@/components/order/OrderWizard";
 export const dynamic = "force-dynamic";
 
 export default async function OrderPage() {
-  const services = await getActiveServicesSafe();
-  const paymentMethods = paymentService.getAvailableMethods();
+  const [services, paymentMethods] = await Promise.all([
+    getActiveServicesSafe(),
+    paymentService.getAvailableMethods(),
+  ]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">

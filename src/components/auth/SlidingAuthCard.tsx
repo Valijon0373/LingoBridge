@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  RiBookOpenLine,
   RiEyeLine,
   RiEyeOffLine,
   RiLockPasswordLine,
@@ -12,6 +12,7 @@ import {
   RiUserAddLine,
   RiUserLine,
 } from "react-icons/ri";
+import logoImg from "@/assets/logo.jpg";
 import { useI18n } from "@/lib/i18n/context";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { cn, formatUzPhoneInput, localeToLanguageEnum } from "@/lib/utils";
@@ -147,8 +148,15 @@ export function SlidingAuthCard({ initialMode }: SlidingAuthCardProps) {
       onSubmit={handleLoginSubmit}
       className="flex w-full max-w-[330px] flex-col items-center"
     >
-      <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#EDF4FA] text-[#1F4E79] shadow-xs">
-        <RiBookOpenLine className="h-5 w-5" />
+      <div className="relative mb-3.5 h-24 w-24 overflow-hidden rounded-full bg-white shadow-md ring-1 ring-slate-200/80">
+        <Image
+          src={logoImg}
+          alt={t.common.brand}
+          fill
+          sizes="96px"
+          priority
+          className="object-cover"
+        />
       </div>
 
       <h1 className="text-[28px] font-extrabold tracking-tight text-slate-900">
@@ -228,8 +236,15 @@ export function SlidingAuthCard({ initialMode }: SlidingAuthCardProps) {
       onSubmit={handleRegisterSubmit}
       className="flex w-full max-w-[330px] flex-col items-center"
     >
-      <div className="mb-2.5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#EDF4FA] text-[#1F4E79] shadow-xs">
-        <RiUserAddLine className="h-5 w-5" />
+      <div className="relative mb-3 h-20 w-20 overflow-hidden rounded-full bg-white shadow-md ring-1 ring-slate-200/80">
+        <Image
+          src={logoImg}
+          alt={t.common.brand}
+          fill
+          sizes="80px"
+          priority
+          className="object-cover"
+        />
       </div>
 
       <h1 className="text-[28px] font-extrabold tracking-tight text-slate-900">
@@ -342,7 +357,7 @@ export function SlidingAuthCard({ initialMode }: SlidingAuthCardProps) {
       <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-[#1F4E79]/15 blur-3xl" />
 
       {/* Desktop Sliding Split Card (md and up) */}
-      <div className="relative hidden md:block w-full max-w-[850px] min-h-[530px] overflow-hidden rounded-[30px] bg-white shadow-[0_20px_50px_rgba(22,58,91,0.18)] ring-1 ring-white/80">
+      <div className="relative hidden md:block w-full max-w-[860px] min-h-[560px] overflow-hidden rounded-[30px] bg-white shadow-[0_20px_50px_rgba(22,58,91,0.18)] ring-1 ring-white/80">
         {/* Sign In Form Container */}
         <div
           aria-hidden={isSignUp}
@@ -394,10 +409,15 @@ export function SlidingAuthCard({ initialMode }: SlidingAuthCardProps) {
                 isSignUp ? "translate-x-0 opacity-100" : "-translate-x-[20%] opacity-0"
               )}
             >
-              <span className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-semibold tracking-wide text-white/90 backdrop-blur-xs">
-                <RiBookOpenLine className="h-3.5 w-3.5" />
-                {t.common.brand}
-              </span>
+              <div className="relative mb-4 h-20 w-20 overflow-hidden rounded-full bg-white shadow-lg ring-2 ring-white/30">
+                <Image
+                  src={logoImg}
+                  alt={t.common.brand}
+                  fill
+                  sizes="80px"
+                  className="object-cover"
+                />
+              </div>
               <h2 className="text-3xl font-extrabold tracking-tight text-white">
                 {t.auth.overlayLoginTitle}
               </h2>
@@ -421,10 +441,15 @@ export function SlidingAuthCard({ initialMode }: SlidingAuthCardProps) {
                 isSignUp ? "translate-x-[20%] opacity-0" : "translate-x-0 opacity-100"
               )}
             >
-              <span className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-semibold tracking-wide text-white/90 backdrop-blur-xs">
-                <RiBookOpenLine className="h-3.5 w-3.5" />
-                {t.common.brand}
-              </span>
+              <div className="relative mb-4 h-20 w-20 overflow-hidden rounded-full bg-white shadow-lg ring-2 ring-white/30">
+                <Image
+                  src={logoImg}
+                  alt={t.common.brand}
+                  fill
+                  sizes="80px"
+                  className="object-cover"
+                />
+              </div>
               <h2 className="text-3xl font-extrabold tracking-tight text-white">
                 {t.auth.overlayRegisterTitle}
               </h2>

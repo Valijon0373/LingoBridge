@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  RiBookOpenLine as BookOpenCheck,
   RiMenuLine as Menu,
   RiCloseLine as X,
-  RiShieldCheckLine as ShieldCheck,
   RiDashboardLine as LayoutDashboard,
   RiLogoutBoxRLine as LogOut,
 } from "react-icons/ri";
+import logoImg from "@/assets/logo.jpg";
 import { useI18n } from "@/lib/i18n/context";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -32,10 +32,17 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1F4E79] text-white shadow-xs group-hover:bg-[#163A5B] transition-colors">
-            <BookOpenCheck className="h-5 w-5" />
+      <div className="mx-auto flex h-[84px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="flex items-center gap-3.5 group">
+          <div className="relative h-[70px] w-[70px] shrink-0 overflow-hidden rounded-full bg-white shadow-xs ring-1 ring-slate-200/70 transition-transform group-hover:scale-105">
+            <Image
+              src={logoImg}
+              alt={t.common.brand}
+              fill
+              sizes="70px"
+              priority
+              className="object-cover"
+            />
           </div>
           <div className="leading-tight">
             <span className="block text-base font-bold tracking-tight text-slate-900">
@@ -65,17 +72,6 @@ export function Navbar() {
           <LanguageSwitcher />
           {user ? (
             <>
-              {user.role === "ADMIN" && (
-                <Link href="/admin">
-                  <Button
-                    variant={pathname.startsWith("/admin") ? "primary" : "outline"}
-                    size="sm"
-                  >
-                    <ShieldCheck className="h-4 w-4" />
-                    {t.common.adminPanel}
-                  </Button>
-                </Link>
-              )}
               <Link href="/dashboard">
                 <Button
                   variant={pathname.startsWith("/dashboard") ? "primary" : "outline"}
@@ -142,14 +138,6 @@ export function Navbar() {
             <hr className="my-2 border-slate-100" />
             {user ? (
               <div className="flex flex-col gap-2">
-                {user.role === "ADMIN" && (
-                  <Link href="/admin" onClick={() => setMobileOpen(false)}>
-                    <Button variant="outline" className="w-full justify-start">
-                      <ShieldCheck className="h-4 w-4" />
-                      {t.common.adminPanel}
-                    </Button>
-                  </Link>
-                )}
                 <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
                   <Button variant="outline" className="w-full justify-start">
                     <LayoutDashboard className="h-4 w-4" />

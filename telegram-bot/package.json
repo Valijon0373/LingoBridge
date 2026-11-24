@@ -1,0 +1,11 @@
+{
+  "name": "lingobridge-telegram-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone Telegram bot (@lingo_bridge_spin_bot) for Lingo Bridge",
+  "scripts": {
+    "start": "tsx --env-file=.env src/index.ts",
+    "dev": "tsx watch --env-file=.env src/index.ts",
+    "typecheck": "tsc --noEmit"
+  }
+}

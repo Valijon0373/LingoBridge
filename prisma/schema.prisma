@@ -56,6 +56,7 @@ enum PaymentStatus {
 
 model User {
   id                    String         @id @default(cuid())
+  username              String?        @unique
   phone                 String?        @unique
   firstName             String
   lastName              String         @default("")
@@ -86,10 +87,13 @@ model AppSetting {
   updatedAt DateTime @updatedAt
 }
 
-model AppSetting {
+model StoredFile {
   key       String   @id
-  value     String
-  updatedAt DateTime @updatedAt
+  fileName  String
+  mimeType  String
+  size      Int
+  data      Bytes
+  createdAt DateTime @default(now())
 }
 
 model Service {

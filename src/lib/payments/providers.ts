@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { getPaymentCardSettings } from "@/lib/settings";
 import type {
   PaymentInitiationRequest,
   PaymentInitiationResult,
@@ -6,12 +7,8 @@ import type {
   PaymentWebhookResult,
 } from "./types";
 
-export function getCardTransferDetails() {
-  return {
-    cardNumber: process.env.PAYMENT_CARD_NUMBER || "8600 0000 0000 0000",
-    cardHolder: process.env.PAYMENT_CARD_HOLDER || "LINGO BRIDGE MCHJ",
-    bankName: process.env.PAYMENT_CARD_BANK || "Uzcard / Humo",
-  };
+export async function getCardTransferDetails() {
+  return getPaymentCardSettings();
 }
 
 /**
@@ -26,7 +23,7 @@ export class CardTransferProvider implements PaymentProvider {
       provider: "CARD_TRANSFER",
       status: "PENDING",
       requiresReceiptUpload: true,
-      cardDetails: getCardTransferDetails(),
+      cardDetails: await getCardTransferDetails(),
       message: "Karta raqamiga to‘lovni amalga oshiring va chekni yuklang.",
     };
   }

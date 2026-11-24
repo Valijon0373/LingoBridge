@@ -1,7 +1,7 @@
-import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { prisma } from "@/lib/prisma";
 
 export type StorageFolder = "originals" | "receipts" | "translations";
 
@@ -56,25 +56,7 @@ function guessMimeType(key: string): string {
   return map[ext] ?? "application/octet-stream";
 }
 
-class LocalStorageProvider implements StorageProvider {
-  private baseDir: string;
-
-  constructor() {
-    this.baseDir = path.resolve(
-      process.cwd(),
-      process.env.LOCAL_STORAGE_DIR || "./storage/uploads"
-    );
-  }
-
-  private resolveSafePath(key: string): string {
-    const normalized = path.normalize(key).replace(/^(\.\.(\/|\\|$))+/, "");
-    const fullPath = path.resolve(this.baseDir, normalized);
-    if (!fullPath.startsWith(this.baseDir)) {
-      throw new Error("Invalid storage key path traversal attempt");
-    }
-    return fullPath;
-  }
-
+class DatabaseStorageProvider implements StorageProvider {
   async upload({
     folder,
     originalName,
@@ -87,24 +69,36 @@ class LocalStorageProvider implements StorageProvider {
     mimeType: string;
   }): Promise<StoredFileResult> {
     const key = buildStorageKey(folder, originalName);
-    const fullPath = this.resolveSafePath(key);
-    await fs.mkdir(path.dirname(fullPath), { recursive: true });
-    await fs.writeFile(fullPath, buffer);
+    const resolvedMime = mimeType || guessMimeType(originalName);
+
+    await prisma.storedFile.create({
+      data: {
+        key,
+        fileName: originalName,
+        mimeType: resolvedMime,
+        size: buffer.length,
+        data: new Uint8Array(buffer),
+      },
+    });
+
     return {
       key,
       fileName: originalName,
       size: buffer.length,
-      mimeType: mimeType || guessMimeType(originalName),
+      mimeType: resolvedMime,
     };
   }
 
   async read(key: string): Promise<{ buffer: Buffer; mimeType: string } | null> {
     try {
-      const fullPath = this.resolveSafePath(key);
-      const buffer = await fs.readFile(fullPath);
+      const record = await prisma.storedFile.findUnique({
+        where: { key },
+        select: { data: true, mimeType: true },
+      });
+      if (!record) return null;
       return {
-        buffer,
-        mimeType: guessMimeType(key),
+        buffer: Buffer.from(record.data),
+        mimeType: record.mimeType || guessMimeType(key),
       };
     } catch {
       return null;
@@ -113,10 +107,9 @@ class LocalStorageProvider implements StorageProvider {
 
   async delete(key: string): Promise<void> {
     try {
-      const fullPath = this.resolveSafePath(key);
-      await fs.unlink(fullPath);
+      await prisma.storedFile.delete({ where: { key } });
     } catch {
-      // Ignore missing files
+      // Ignore missing records
     }
   }
 }
@@ -202,7 +195,7 @@ export function getStorageProvider(): StorageProvider {
   if (process.env.STORAGE_DRIVER === "s3" && process.env.S3_BUCKET) {
     cachedStorage = new S3StorageProvider();
   } else {
-    cachedStorage = new LocalStorageProvider();
+    cachedStorage = new DatabaseStorageProvider();
   }
   return cachedStorage;
 }

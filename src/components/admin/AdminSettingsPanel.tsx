@@ -22,6 +22,7 @@ export function AdminSettingsPanel() {
 
   // Profile form
   const [profileForm, setProfileForm] = useState({
+    username: "",
     firstName: "",
     lastName: "",
     phone: "+998 ",
@@ -59,10 +60,16 @@ export function AdminSettingsPanel() {
       const res = await fetch("/api/admin/settings", { cache: "no-store" });
       if (res.ok) {
         const data = (await res.json()) as {
-          admin: { firstName: string; lastName: string; phone: string | null };
+          admin: {
+            username?: string | null;
+            firstName: string;
+            lastName: string;
+            phone: string | null;
+          };
           settings: typeof platformForm;
         };
         setProfileForm({
+          username: data.admin.username || "admin",
           firstName: data.admin.firstName,
           lastName: data.admin.lastName,
           phone: formatUzPhone(data.admin.phone),
@@ -233,22 +240,40 @@ export function AdminSettingsPanel() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Telefon raqam
-              </label>
-              <input
-                type="tel"
-                required
-                value={profileForm.phone}
-                onChange={(e) =>
-                  setProfileForm({
-                    ...profileForm,
-                    phone: formatUzPhoneInput(e.target.value),
-                  })
-                }
-                className={`${inputClass} font-mono`}
-              />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Admin Login
+                </label>
+                <input
+                  type="text"
+                  required
+                  minLength={3}
+                  value={profileForm.username}
+                  onChange={(e) =>
+                    setProfileForm({ ...profileForm, username: e.target.value })
+                  }
+                  placeholder="admin"
+                  className={`${inputClass} font-mono`}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Telefon raqam
+                </label>
+                <input
+                  type="tel"
+                  required
+                  value={profileForm.phone}
+                  onChange={(e) =>
+                    setProfileForm({
+                      ...profileForm,
+                      phone: formatUzPhoneInput(e.target.value),
+                    })
+                  }
+                  className={`${inputClass} font-mono`}
+                />
+              </div>
             </div>
 
             <Button

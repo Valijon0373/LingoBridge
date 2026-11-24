@@ -8,14 +8,13 @@ import {
   RiSendPlaneLine as Send,
 } from "react-icons/ri";
 import { useI18n } from "@/lib/i18n/context";
+import type { PublicPlatformSettings } from "@/lib/settings";
 
-export function Footer() {
+export function Footer({ publicSettings }: { publicSettings: PublicPlatformSettings }) {
   const { t } = useI18n();
-  const supportPhone = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+998 90 123 45 67";
-  const supportTelegram =
-    process.env.NEXT_PUBLIC_SUPPORT_TELEGRAM || "https://t.me/lingobridge_admin";
-  const botUsername =
-    process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || "lingobridge_bot";
+  const supportPhone = publicSettings.supportPhone;
+  const supportTelegram = publicSettings.supportTelegram;
+  const botUsername = publicSettings.telegramBotUsername;
 
   return (
     <footer className="border-t border-slate-200 bg-white">

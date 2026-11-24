@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword, requireAdmin, verifyPassword } from "@/lib/auth";
 import { uzPhoneSchema } from "@/lib/validations";
 import { logAdminAction } from "@/lib/audit";
+import { getAppSettingsMap } from "@/lib/settings";
 
 const SETTING_KEYS = [
   "PAYMENT_CARD_NUMBER",
@@ -17,41 +18,29 @@ export async function GET() {
   const { user: admin, errorResponse } = await requireAdmin();
   if (errorResponse || !admin) return errorResponse!;
 
-  const dbSettings = await prisma.appSetting.findMany({
-    where: { key: { in: [...SETTING_KEYS] } },
-  });
-
-  const map = new Map(dbSettings.map((s) => [s.key, s.value]));
+  const map = await getAppSettingsMap([...SETTING_KEYS]);
 
   return NextResponse.json({
     admin,
     settings: {
-      paymentCardNumber:
-        map.get("PAYMENT_CARD_NUMBER") ||
-        process.env.PAYMENT_CARD_NUMBER ||
-        "8600 0000 0000 0000",
-      paymentCardHolder:
-        map.get("PAYMENT_CARD_HOLDER") ||
-        process.env.PAYMENT_CARD_HOLDER ||
-        "LINGO BRIDGE MCHJ",
-      paymentCardBank:
-        map.get("PAYMENT_CARD_BANK") ||
-        process.env.PAYMENT_CARD_BANK ||
-        "Uzcard / Humo",
-      supportPhone:
-        map.get("SUPPORT_PHONE") ||
-        process.env.NEXT_PUBLIC_SUPPORT_PHONE ||
-        "+998 90 123 45 67",
-      supportTelegram:
-        map.get("SUPPORT_TELEGRAM") ||
-        process.env.NEXT_PUBLIC_SUPPORT_TELEGRAM ||
-        "https://t.me/lingobridge_admin",
+      paymentCardNumber: map.get("PAYMENT_CARD_NUMBER") || "",
+      paymentCardHolder: map.get("PAYMENT_CARD_HOLDER") || "",
+      paymentCardBank: map.get("PAYMENT_CARD_BANK") || "",
+      supportPhone: map.get("SUPPORT_PHONE") || "",
+      supportTelegram: map.get("SUPPORT_TELEGRAM") || "",
     },
   });
 }
 
 const updateSettingsSchema = z.object({
   section: z.enum(["profile", "password", "platform"]),
+  username: z
+    .string()
+    .trim()
+    .min(3, "Login kamida 3 ta belgi bo‘lishi kerak")
+    .max(40)
+    .regex(/^[a-zA-Z0-9._-]+$/, "Login faqat harf, raqam va . _ - belgilaridan iborat bo‘lishi kerak")
+    .optional(),
   firstName: z.string().trim().min(2).max(60).optional(),
   lastName: z.string().trim().max(60).optional(),
   phone: uzPhoneSchema.optional(),
@@ -82,6 +71,22 @@ export async function PATCH(request: Request) {
     const data = parsed.data;
 
     if (data.section === "profile") {
+      const nextUsername = data.username ? data.username.toLowerCase() : undefined;
+      if (nextUsername && nextUsername !== admin.username) {
+        const existsUsername = await prisma.user.findFirst({
+          where: {
+            username: { equals: nextUsername, mode: "insensitive" },
+            id: { not: admin.id },
+          },
+        });
+        if (existsUsername) {
+          return NextResponse.json(
+            { error: "Bu login boshqa hisobda band" },
+            { status: 409 }
+          );
+        }
+      }
+
       if (data.phone && data.phone !== admin.phone) {
         const exists = await prisma.user.findUnique({ where: { phone: data.phone } });
         if (exists && exists.id !== admin.id) {
@@ -95,11 +100,12 @@ export async function PATCH(request: Request) {
       const updated = await prisma.user.update({
         where: { id: admin.id },
         data: {
+          ...(nextUsername ? { username: nextUsername } : {}),
           ...(data.firstName ? { firstName: data.firstName } : {}),
           ...(data.lastName !== undefined ? { lastName: data.lastName } : {}),
           ...(data.phone ? { phone: data.phone } : {}),
         },
-        select: { id: true, firstName: true, lastName: true, phone: true, role: true },
+        select: { id: true, username: true, firstName: true, lastName: true, phone: true, role: true },
       });
 
       await logAdminAction({

@@ -6,7 +6,6 @@ import {
   RiCheckboxCircleLine as CheckCircle2,
   RiGlobalLine as Globe,
   RiLoader4Line as Loader2,
-  RiTerminalBoxLine as Terminal,
   RiCloseCircleLine as XCircle,
 } from "react-icons/ri";
 import { useI18n } from "@/lib/i18n/context";
@@ -74,8 +73,8 @@ export function AdminTelegramPanel() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-12">
-      <Card className="p-6 lg:col-span-7 space-y-5">
+    <div className="max-w-3xl">
+      <Card className="p-6 space-y-5">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-600 text-white">
             <Bot className="h-6 w-6" />
@@ -136,35 +135,6 @@ export function AdminTelegramPanel() {
             <p className="text-xs font-medium text-[#1F4E79] dark:text-[#00C896]">{message}</p>
           )}
         </form>
-      </Card>
-
-      <Card className="p-6 lg:col-span-5 bg-slate-900 text-slate-100 space-y-4">
-        <div className="flex items-center gap-2 text-sky-400">
-          <Terminal className="h-5 w-5" />
-          <h3 className="font-semibold">Bot integratsiyasi imkoniyatlari</h3>
-        </div>
-        <ul className="space-y-2.5 text-xs text-slate-300 leading-relaxed list-disc pl-4">
-          <li>
-            <strong>Yangi buyurtma va chek xabarnomalari:</strong> Barcha{" "}
-            <code className="text-sky-300">TELEGRAM_ADMIN_CHAT_IDS</code> adminlariga
-            buyurtma ma’lumotlari, chek fayli va tezkor inline tugmalar (✅ PAID / ⏳
-            IN_PROGRESS / ❌ CANCELLED) yuboriladi.
-          </li>
-          <li>
-            <strong>Tayyor tarjimani yetkazish:</strong> Admin tarjima faylini
-            yuklaganda mijozning bog‘langan Telegram hisobiga hujjat to‘g‘ridan-to‘g‘ri
-            yuboriladi.
-          </li>
-          <li>
-            <strong>Hisobni bog‘lash:</strong> Mijoz Profilingizdan bitta tugma bilan{" "}
-            <code className="text-sky-300">/start link_&lt;code&gt;</code> orqali bog‘lanadi.
-          </li>
-          <li>
-            <strong>Lokal test (Polling):</strong> HTTPS domainsiz test qilish uchun
-            terminalda <code className="text-emerald-300">npm run bot:dev</code> buyrug‘ini
-            ishga tushiring.
-          </li>
-        </ul>
       </Card>
     </div>
   );

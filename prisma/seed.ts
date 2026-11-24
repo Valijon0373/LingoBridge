@@ -1,12 +1,4 @@
-import {
-  PrismaClient,
-  PricingType,
-  Role,
-  Language,
-  OrderStatus,
-  PaymentProviderType,
-  PaymentStatus,
-} from "@prisma/client";
+import { PrismaClient, PricingType, Role, Language } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -65,9 +57,8 @@ async function main() {
     },
   ];
 
-  const createdServices: Record<string, { id: string; price: number }> = {};
   for (const service of servicesData) {
-    const record = await prisma.service.upsert({
+    await prisma.service.upsert({
       where: { slug: service.slug },
       update: {
         nameUz: service.nameUz,
@@ -82,14 +73,14 @@ async function main() {
       },
       create: service,
     });
-    createdServices[service.slug] = { id: record.id, price: record.price };
   }
 
-  const adminPasswordHash = await bcrypt.hash("Admin123!", 10);
+  const adminPasswordHash = await bcrypt.hash("LingoB2026!", 10);
   await prisma.user.upsert({
     where: { phone: "+998900000000" },
-    update: { role: Role.ADMIN },
+    update: { role: Role.ADMIN, username: "admin", passwordHash: adminPasswordHash },
     create: {
+      username: "admin",
       phone: "+998900000000",
       firstName: "Lingo Bridge",
       lastName: "Admin",
@@ -99,114 +90,28 @@ async function main() {
     },
   });
 
-  const demoUserPasswordHash = await bcrypt.hash("User123!", 10);
-  const demoUser = await prisma.user.upsert({
-    where: { phone: "+998901112233" },
-    update: {},
-    create: {
-      phone: "+998901112233",
-      firstName: "Azizbek",
-      lastName: "Karimov",
-      passwordHash: demoUserPasswordHash,
-      role: Role.USER,
-      language: Language.UZ,
-    },
-  });
+  const defaultSettings: Array<[string, string]> = [
+    ["PAYMENT_CARD_NUMBER", process.env.PAYMENT_CARD_NUMBER || "8600 0000 0000 0000"],
+    ["PAYMENT_CARD_HOLDER", process.env.PAYMENT_CARD_HOLDER || "LINGO BRIDGE MCHJ"],
+    ["PAYMENT_CARD_BANK", process.env.PAYMENT_CARD_BANK || "Uzcard / Humo"],
+    ["SUPPORT_PHONE", process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+998 90 123 45 67"],
+    ["SUPPORT_TELEGRAM", process.env.NEXT_PUBLIC_SUPPORT_TELEGRAM || "https://t.me/lingobridge_admin"],
+    [
+      "TELEGRAM_BOT_USERNAME",
+      (process.env.TELEGRAM_BOT_USERNAME || "lingo_bridge_spin_bot").replace(/^@/, ""),
+    ],
+  ];
 
-  // Seed realistic sample orders if database has none yet (for dashboard charts preview)
-  const existingOrdersCount = await prisma.order.count();
-  if (existingOrdersCount === 0) {
-    const samples = [
-      {
-        orderNumber: "LB-1001",
-        serviceSlug: "avtoreferat-tarjima",
-        sourceLanguage: Language.UZ,
-        targetLanguage: Language.EN,
-        fileName: "PhD_Avtoreferat_2026.pdf",
-        pageCount: 24,
-        status: OrderStatus.COMPLETED,
-      },
-      {
-        orderNumber: "LB-1002",
-        serviceSlug: "avtoreferat-tarjima",
-        sourceLanguage: Language.UZ,
-        targetLanguage: Language.RU,
-        fileName: "DSc_Abstract_Matematika.pdf",
-        pageCount: 18,
-        status: OrderStatus.COMPLETED,
-      },
-      {
-        orderNumber: "LB-1003",
-        serviceSlug: "dissertatsiya-tahrir",
-        sourceLanguage: Language.RU,
-        targetLanguage: Language.EN,
-        fileName: "Dissertatsiya_Bob1_Bob2.docx",
-        pageCount: 40,
-        status: OrderStatus.IN_PROGRESS,
-      },
-      {
-        orderNumber: "LB-1004",
-        serviceSlug: "boshqa-hujjatlar-tarjimasi",
-        sourceLanguage: Language.UZ,
-        targetLanguage: Language.EN,
-        fileName: "Diplom_va_Ilova.pdf",
-        pageCount: 4,
-        status: OrderStatus.PAID,
-      },
-      {
-        orderNumber: "LB-1005",
-        serviceSlug: "boshqa-hujjatlar-tarjimasi",
-        sourceLanguage: Language.EN,
-        targetLanguage: Language.UZ,
-        fileName: "Ilmiy_Maqola_Scopus.pdf",
-        pageCount: 12,
-        status: OrderStatus.WAITING_PAYMENT,
-      },
-    ];
-
-    for (const s of samples) {
-      const svc = createdServices[s.serviceSlug];
-      const totalPrice = svc.price * s.pageCount;
-      const created = await prisma.order.create({
-        data: {
-          orderNumber: s.orderNumber,
-          userId: demoUser.id,
-          serviceId: svc.id,
-          sourceLanguage: s.sourceLanguage,
-          targetLanguage: s.targetLanguage,
-          originalFileName: s.fileName,
-          originalFileKey: `originals/sample/${s.fileName}`,
-          pageCount: s.pageCount,
-          autoDetectedPages: s.fileName.endsWith(".pdf"),
-          unitPrice: svc.price,
-          pricingType: PricingType.PER_PAGE,
-          totalPrice,
-          status: s.status,
-          completedAt: s.status === OrderStatus.COMPLETED ? new Date() : null,
-        },
-      });
-
-      if (s.status !== OrderStatus.WAITING_PAYMENT) {
-        await prisma.payment.create({
-          data: {
-            orderId: created.id,
-            userId: demoUser.id,
-            provider: PaymentProviderType.CARD_TRANSFER,
-            status:
-              s.status === OrderStatus.IN_PROGRESS
-                ? PaymentStatus.WAITING_VERIFICATION
-                : PaymentStatus.SUCCEEDED,
-            amount: totalPrice,
-            paidAt: s.status === OrderStatus.COMPLETED || s.status === OrderStatus.PAID ? new Date() : null,
-          },
-        });
-      }
-    }
+  for (const [key, value] of defaultSettings) {
+    await prisma.appSetting.upsert({
+      where: { key },
+      update: {},
+      create: { key, value },
+    });
   }
 
   console.log("Seed completed successfully!");
-  console.log("Default Admin: +998 90 000 00 00 / Admin123!");
-  console.log("Demo User:     +998 90 111 22 33 / User123!");
+  console.log("Default Admin: admin / LingoB2026!");
 }
 
 main()
