@@ -227,7 +227,7 @@ export function AdminDashboardShell({
                 }}
                 title={sidebarCollapsed ? item.label : undefined}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm font-medium transition-all cursor-pointer",
+                  "relative flex w-full items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm font-medium transition-all cursor-pointer",
                   active
                     ? "bg-[#00C896] text-white shadow-md shadow-[#00C896]/25"
                     : darkMode
@@ -237,7 +237,20 @@ export function AdminDashboardShell({
                 )}
               >
                 <Icon className="h-5 w-5 shrink-0" />
-                {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
+                {!sidebarCollapsed && <span className="truncate flex-1 text-left">{item.label}</span>}
+                {item.key === "orders" && (stats?.newOrdersCount ?? 0) > 0 && (
+                  <span
+                    className={cn(
+                      "inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[11px] font-bold leading-none",
+                      active
+                        ? "bg-white text-[#00A87E]"
+                        : "bg-rose-500 text-white shadow-xs",
+                      sidebarCollapsed && "absolute -top-1 -right-1 px-1.5 text-[10px]"
+                    )}
+                  >
+                    {stats?.newOrdersCount}
+                  </span>
+                )}
               </button>
             );
           })}

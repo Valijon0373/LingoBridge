@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { getAdminSeenOrderIds, isOrderNewForAdmin } from "@/lib/settings";
 import type { OrderStatus } from "@prisma/client";
 
 export async function GET() {
@@ -16,6 +17,8 @@ export async function GET() {
     groupedStatuses,
     servicesWithCounts,
     recentOrders,
+    activeOrderStatuses,
+    seenIds,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { telegramChatId: { not: null } } }),
@@ -48,7 +51,16 @@ export async function GET() {
         user: { select: { firstName: true, lastName: true, phone: true } },
       },
     }),
+    prisma.order.findMany({
+      where: { status: { in: ["PENDING", "WAITING_PAYMENT", "PAID", "IN_PROGRESS"] } },
+      select: { id: true, status: true },
+    }),
+    getAdminSeenOrderIds(),
   ]);
+
+  const newOrdersCount = activeOrderStatuses.filter((o) =>
+    isOrderNewForAdmin(o, seenIds)
+  ).length;
 
   const statusCounts: Record<OrderStatus, number> = {
     PENDING: 0,
@@ -80,6 +92,7 @@ export async function GET() {
     totalOrders,
     totalRevenue: revenueAgg._sum.totalPrice ?? 0,
     completedOrders: statusCounts.COMPLETED,
+    newOrdersCount,
     statusCounts,
     serviceBreakdown,
     recentOrders,

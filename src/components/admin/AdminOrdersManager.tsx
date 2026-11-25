@@ -73,12 +73,30 @@ export function AdminOrdersManager({ onChanged }: { onChanged?: () => void }) {
     return () => clearTimeout(timer);
   }, [fetchOrders]);
 
+  const newBadgeLabel =
+    locale === "ru" ? "Новый" : locale === "en" ? "New" : "Yangi";
+
   function openOrderModal(order: OrderDTO) {
-    setSelectedOrder(order);
+    setSelectedOrder(order.isNew ? { ...order, isNew: false } : order);
     setNextStatus(order.status);
     setAdminNote(order.adminNote || "");
     setTranslationFile(null);
     setFeedback(null);
+
+    if (order.isNew) {
+      setOrders((prev) =>
+        prev.map((o) => (o.id === order.id ? { ...o, isNew: false } : o))
+      );
+      void fetch(`/api/admin/orders/${order.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markSeen: true }),
+      })
+        .then(() => {
+          onChanged?.();
+        })
+        .catch(() => {});
+    }
   }
 
   async function handleUpdateOrder(e: React.FormEvent) {
@@ -213,7 +231,11 @@ export function AdminOrdersManager({ onChanged }: { onChanged?: () => void }) {
                 {orders.map((order) => (
                   <tr
                     key={order.id}
-                    className="odd:bg-white even:bg-slate-50/60 hover:bg-[#00C896]/5 dark:odd:bg-slate-900 dark:even:bg-slate-800/40 dark:hover:bg-[#00C896]/10 transition-colors"
+                    className={
+                      order.isNew
+                        ? "bg-rose-50/45 hover:bg-rose-50/80 dark:bg-rose-500/10 dark:hover:bg-rose-500/15 transition-colors"
+                        : "odd:bg-white even:bg-slate-50/60 hover:bg-[#00C896]/5 dark:odd:bg-slate-900 dark:even:bg-slate-800/40 dark:hover:bg-[#00C896]/10 transition-colors"
+                    }
                   >
                     <td className="border border-slate-200 dark:border-slate-700 px-5 py-4 font-mono text-sm font-bold text-[#1F4E79] dark:text-[#00C896] whitespace-nowrap">
                       #{order.orderNumber}
@@ -227,6 +249,12 @@ export function AdminOrdersManager({ onChanged }: { onChanged?: () => void }) {
                       </p>
                     </td>
                     <td className="border border-slate-200 dark:border-slate-700 px-5 py-4">
+                      {order.isNew && (
+                        <span className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-rose-500 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-xs">
+                          <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                          {newBadgeLabel}
+                        </span>
+                      )}
                       <p className="font-semibold text-slate-800 dark:text-slate-100 text-[15px]">
                         {getServiceLocalizedName(order.service, locale)}
                       </p>

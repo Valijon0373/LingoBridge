@@ -1,4 +1,49 @@
+import type { OrderStatus } from "@prisma/client";
 import { prisma } from "./prisma";
+
+const ADMIN_SEEN_ORDERS_KEY = "ADMIN_SEEN_ORDER_IDS";
+const NEW_ELIGIBLE_STATUSES = new Set<OrderStatus>([
+  "PENDING",
+  "WAITING_PAYMENT",
+  "PAID",
+  "IN_PROGRESS",
+]);
+
+export async function getAdminSeenOrderIds(): Promise<Set<string>> {
+  const row = await prisma.appSetting.findUnique({
+    where: { key: ADMIN_SEEN_ORDERS_KEY },
+  });
+  if (!row?.value) return new Set();
+  try {
+    const parsed = JSON.parse(row.value) as unknown;
+    if (Array.isArray(parsed)) {
+      return new Set(parsed.filter((v): v is string => typeof v === "string"));
+    }
+  } catch {
+    // Ignore malformed JSON
+  }
+  return new Set();
+}
+
+export async function markAdminOrderSeen(orderId: string): Promise<void> {
+  const seen = await getAdminSeenOrderIds();
+  if (seen.has(orderId)) return;
+  seen.add(orderId);
+  // Keep recent 1000 IDs so the setting stays compact
+  const list = Array.from(seen).slice(-1000);
+  await prisma.appSetting.upsert({
+    where: { key: ADMIN_SEEN_ORDERS_KEY },
+    update: { value: JSON.stringify(list) },
+    create: { key: ADMIN_SEEN_ORDERS_KEY, value: JSON.stringify(list) },
+  });
+}
+
+export function isOrderNewForAdmin(
+  order: { id: string; status: OrderStatus },
+  seenIds: Set<string>
+): boolean {
+  return NEW_ELIGIBLE_STATUSES.has(order.status) && !seenIds.has(order.id);
+}
 
 export interface PublicPlatformSettings {
   supportPhone: string;

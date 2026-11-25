@@ -68,6 +68,7 @@ export interface OrderDTO {
   completedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  isNew?: boolean;
   service: ServiceDTO;
   payments: PaymentDTO[];
   user?: {

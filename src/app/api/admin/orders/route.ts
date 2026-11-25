@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { getAdminSeenOrderIds, isOrderNewForAdmin } from "@/lib/settings";
 import type { OrderStatus, Prisma } from "@prisma/client";
 
 export async function GET(request: Request) {
@@ -28,28 +29,36 @@ export async function GET(request: Request) {
     ];
   }
 
-  const orders = await prisma.order.findMany({
-    where,
-    include: {
-      service: true,
-      user: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          phone: true,
-          language: true,
-          telegramUsername: true,
-          telegramChatId: true,
+  const [orders, seenIds] = await Promise.all([
+    prisma.order.findMany({
+      where,
+      include: {
+        service: true,
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            language: true,
+            telegramUsername: true,
+            telegramChatId: true,
+          },
+        },
+        payments: {
+          orderBy: { createdAt: "desc" },
         },
       },
-      payments: {
-        orderBy: { createdAt: "desc" },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 200,
-  });
+      orderBy: { createdAt: "desc" },
+      take: 200,
+    }),
+    getAdminSeenOrderIds(),
+  ]);
 
-  return NextResponse.json({ orders });
+  const enriched = orders.map((order) => ({
+    ...order,
+    isNew: isOrderNewForAdmin(order, seenIds),
+  }));
+
+  return NextResponse.json({ orders: enriched });
 }

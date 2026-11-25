@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 import { ALLOWED_TRANSLATION_EXTENSIONS, validateUploadedFile } from "@/lib/pdf";
 import { getStorageProvider } from "@/lib/storage";
 import { createUserNotification, logAdminAction } from "@/lib/audit";
+import { markAdminOrderSeen } from "@/lib/settings";
 import { notifyUserOrderCompleted } from "@/lib/telegram/bot-service";
 
 export async function POST(
@@ -113,7 +114,9 @@ export async function POST(
       },
     });
 
-    return NextResponse.json({ order: updated });
+    await markAdminOrderSeen(existing.id);
+
+    return NextResponse.json({ order: { ...updated, isNew: false } });
   } catch (error) {
     console.error("[POST /api/admin/orders/[id]/translation]", error);
     return NextResponse.json({ error: "Tarjima faylini yuklab bo‘lmadi" }, { status: 500 });

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { adminUpdateOrderSchema } from "@/lib/validations";
 import { createUserNotification, logAdminAction } from "@/lib/audit";
+import { markAdminOrderSeen } from "@/lib/settings";
 import { notifyUserStatusChange } from "@/lib/telegram/bot-service";
 
 export async function PATCH(
@@ -15,7 +16,13 @@ export async function PATCH(
   const { id } = await context.params;
 
   try {
-    const body = await request.json();
+    const body = (await request.json()) as Record<string, unknown>;
+
+    if (body && body.markSeen === true && body.status === undefined && body.adminNote === undefined) {
+      await markAdminOrderSeen(id);
+      return NextResponse.json({ ok: true });
+    }
+
     const parsed = adminUpdateOrderSchema.safeParse(body);
 
     if (!parsed.success) {
@@ -107,7 +114,9 @@ export async function PATCH(
       }).catch((err) => console.error("[Telegram notifyUserStatusChange]", err));
     }
 
-    return NextResponse.json({ order: updated });
+    await markAdminOrderSeen(existing.id);
+
+    return NextResponse.json({ order: { ...updated, isNew: false } });
   } catch (error) {
     console.error("[PATCH /api/admin/orders/[id]]", error);
     return NextResponse.json({ error: "Buyurtmani yangilab bo‘lmadi" }, { status: 500 });

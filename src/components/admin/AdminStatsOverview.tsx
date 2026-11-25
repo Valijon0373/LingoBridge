@@ -34,6 +34,7 @@ export interface AdminStatsData {
   totalOrders: number;
   totalRevenue: number;
   completedOrders: number;
+  newOrdersCount?: number;
   statusCounts: Record<OrderStatus, number>;
   serviceBreakdown: Array<{
     id: string;
