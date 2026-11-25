@@ -71,11 +71,20 @@ export function ClientDashboardShell() {
     loadData();
   }, [loadData]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+    if (tab === "orders" || tab === "profile" || tab === "notifications") {
+      setActiveTab(tab);
+    }
+  }, []);
+
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   async function handleMarkAllRead() {
     await fetch("/api/notifications", { method: "PATCH" });
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    window.dispatchEvent(new Event("lb:notifications-updated"));
   }
 
   if (loading) {
