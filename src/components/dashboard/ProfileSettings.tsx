@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   RiRobot2Line as Bot,
   RiCheckboxCircleLine as CheckCircle2,
+  RiCheckLine as Check,
   RiExternalLinkLine as ExternalLink,
-  RiSave3Line as Save,
   RiSendPlaneLine as Send,
 } from "react-icons/ri";
 import { useI18n } from "@/lib/i18n/context";
@@ -13,6 +13,7 @@ import { formatUzPhone, formatUzPhoneInput, languageEnumToLocale } from "@/lib/u
 import type { UserDTO } from "@/types";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 
 interface ProfileSettingsProps {
   user: UserDTO;
@@ -32,6 +33,14 @@ export function ProfileSettings({ user, onUpdated }: ProfileSettingsProps) {
 
   const [linkingTelegram, setLinkingTelegram] = useState(false);
   const [telegramDeepLink, setTelegramDeepLink] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!savedMsg) return;
+    const timer = setTimeout(() => {
+      setSavedMsg(null);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [savedMsg]);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -83,11 +92,6 @@ export function ProfileSettings({ user, onUpdated }: ProfileSettingsProps) {
         {error && (
           <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm text-rose-700">
             {error}
-          </div>
-        )}
-        {savedMsg && (
-          <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm text-emerald-700">
-            {savedMsg}
           </div>
         )}
 
@@ -153,7 +157,7 @@ export function ProfileSettings({ user, onUpdated }: ProfileSettingsProps) {
 
           <div className="pt-2">
             <Button type="submit" loading={saving}>
-              <Save className="h-4 w-4" />
+              <Check className="h-4 w-4" />
               {t.common.save}
             </Button>
           </div>
@@ -219,6 +223,22 @@ export function ProfileSettings({ user, onUpdated }: ProfileSettingsProps) {
           )}
         </div>
       </Card>
+
+      <Modal
+        open={Boolean(savedMsg)}
+        onClose={() => setSavedMsg(null)}
+        maxWidthClass="max-w-sm"
+        title={t.dashboard.profileTitle}
+      >
+        <div className="flex flex-col items-center text-center py-2 space-y-3.5">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+            <CheckCircle2 className="h-8 w-8" />
+          </div>
+          <p className="text-base font-semibold text-slate-900">
+            {savedMsg}
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 }
